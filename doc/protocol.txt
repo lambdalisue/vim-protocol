@@ -1,0 +1,93 @@
+*protocol.txt*				Enable accessing remote contents
+
+Version: 0.1.0
+Author:  Alisue <lambdalisue@hashnote.net>		*vim-protocol-author*
+Support: Vim 7.4 and above
+License: MIT license
+
+    Copyright (c) 2016 Alisue, hashnote.net
+
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files
+    (the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge,
+    publish, distribute, sublicense, and/or sell copies of the Software,
+    and to permit persons to whom the Software is furnished to do so,
+    subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=============================================================================
+CONTENTS					*vim-protocol-contents*
+
+Introduction			|vim-protocol-introduction|
+Install				|vim-protocol-install|
+Usage				|vim-protocol-usage|
+
+
+=============================================================================
+INTRODUCTION					*vim-protocol-introduction*
+
+*vim-protocol* provides features to open, read, source remote contents of
+http://, https://, or ftp:// without using |netrw.vim|.
+
+This plugin was designed for user who don't use most of features of
+|netrw.vim| but want to access remote contents through the pseudo file object.
+
+
+=============================================================================
+INSTALL						*vim-protocol-install*
+
+Use Plug.vim, neobundle.vim, or whatever like:
+>
+	" Plug.vim
+	Plug 'lambdalisue/vim-protocol'
+
+	" neobundle.vim
+	NeoBundle 'lambdalisue/vim-protocol'
+
+	" neobundle.vim (Lazy)
+	NeoBundleLazy 'lambdalisue/vim-protocol', {
+	      \ 'on_func': 'protocol#',
+	      \ 'on_path': '^\%(https\?://\|ftp://\)',
+	      \}
+<
+Or copy the repository into one of your |runtimepath| of Vim.
+
+After you install the plugin, you MUST disable |netrw.vim| to prevent conflict
+features.
+You can disable |netrw.vim| with the following line in your |.vimrc|
+>
+	" disable netrw.vim
+	let g:loaded_netrw             = 1
+	let g:loaded_netrwPlugin       = 1
+	let g:loaded_netrwSettings     = 1
+	let g:loaded_netrwFileHandlers = 1
+<
+
+=============================================================================
+USAGE						*vim-protocol-usage*
+
+This plugin provides |BufReadCmd|, |FileReadCmd| and |SourceCmd| for filenames
+starts with http://, https:// or ftp://.
+In short, the following command request remote contents of corresponding URL:
+>
+	:edit https://git.io/vgDtJ
+	" Read a remote content and open a corresponding buffer
+	:read https://git.io/vgDtJ
+	" Read a remote content and insert into the current buffer
+	:source https://git.io/vgDtJ
+	" Read a remote content and source the content as Vim script
+<
+
+=============================================================================
+vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
