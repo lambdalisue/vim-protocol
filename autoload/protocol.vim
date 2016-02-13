@@ -61,6 +61,60 @@ function! protocol#doautocmd(name, ...) abort
   execute printf('doautocmd %s%s %s', nomodeline, a:name, pattern)
 endfunction
 
+function! protocol#define_variables(prefix, defaults) abort
+  " Note:
+  "   Funcref is not supported while the variable must start with a capital
+  let prefix = empty(a:prefix)
+        \ ? 'g:protocol'
+        \ : printf('g:protocol#%s', a:prefix)
+  for [key, value] in items(a:defaults)
+    let name = printf('%s#%s', prefix, key)
+    if !exists(name)
+      execute printf('let %s = %s', name, string(value))
+    endif
+    unlet value
+  endfor
+endfunction
+
+function! protocol#read_content(filename) abort
+  if a:filename !~# '^\a\+://'
+    return readfile(a:filename)
+  endif
+  let protocol = matchstr(a:filename, '^\a\+\ze://')
+  let fname = printf('protocol#%s#read', protocol)
+  try
+    return call(fname, [a:filename])
+  catch /^protocol:/
+    call protocol#handle_exception()
+  endtry
+endfunction
+
+function! protocol#write_content(filename, content) abort
+  if a:filename !~# '^\a\+://'
+    return readfile(a:filename)
+  endif
+  let protocol = matchstr(a:filename, '^\a\+\ze://')
+  let fname = printf('protocol#%s#write', protocol)
+  try
+    return call(fname, [a:filename, a:content])
+  catch /^protocol:/
+    call protocol#handle_exception()
+  endtry
+endfunction
+
+function! protocol#is_writable(filename) abort
+  if a:filename !~# '^\a\+://'
+    return filewritable(a:filename)
+  endif
+  let protocol = matchstr(a:filename, '^\a\+\ze://')
+  let fname = printf('protocol#%s#is_writable', protocol)
+  try
+    return call(fname, [a:filename])
+  catch /^protocol:/
+    call protocol#handle_exception()
+  endtry
+endfunction
+
 function! protocol#handle_autocmd(protocol, name) abort
   let fname = printf('protocol#%s#%s', a:protocol, a:name)
   try

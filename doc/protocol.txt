@@ -38,7 +38,7 @@ Usage				|vim-protocol-usage|
 INTRODUCTION					*vim-protocol-introduction*
 
 *vim-protocol* provides features to open, read, source remote contents of
-http:// or https:// without using |netrw.vim|.
+http://, https:// or whatever without using Vim's default plugins.
 
 This plugin was designed for user who don't use most of features of
 |netrw.vim| but want to access remote contents through the pseudo file object.

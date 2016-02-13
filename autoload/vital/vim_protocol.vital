@@ -4,3 +4,6 @@ vim_protocol
 Web.HTTP
 Vim.Prompt
 Vim.Buffer
+Vim.Buffer.Anchor
+System.Filepath
+System.File
