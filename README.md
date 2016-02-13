@@ -24,7 +24,6 @@ NeoBundle 'lambdalisue/vim-protocol'
 
 " neobundle.vim (Lazy)
 NeoBundleLazy 'lambdalisue/vim-protocol', {
-      \ 'on_func': 'protocol#',
       \ 'on_path': '^https\?://',
       \}
 ```
