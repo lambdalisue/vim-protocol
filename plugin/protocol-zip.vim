@@ -9,5 +9,6 @@ augroup vim_protocol_internal_zip
   autocmd SourceCmd   zip://*  nested call protocol#handle_autocmd('zip', 'SourceCmd')
 
   autocmd BufReadCmd  *.zip    nested call protocol#handle_autocmd('zip', 'browse')
+  autocmd BufReadPre  *.zip    let b:_protocol_cancel = 'zip'
 augroup END
 

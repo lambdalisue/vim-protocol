@@ -12,7 +12,7 @@ function! s:zip(args, ...) abort
   let options = get(a:000, 0, {})
   if !executable(g:protocol#zip#zip_exec)
     call s:throw(printf(
-          \ '"%s" is not executable. Assign unzip executable to g:protocol#zip#zip_exec.',
+          \ '"%s" is not executable. Assign zip executable to g:protocol#zip#zip_exec.',
           \ g:protocol#zip#zip_exec,
           \))
   endif
@@ -54,7 +54,7 @@ function! s:split_uri(uri) abort
 endfunction
 function! s:get_cache_filename(uri) abort
   let filename = fnameescape(a:uri)
-  let filename = substitute(filename, '[\/]', '+', 'g')
+  let filename = substitute(filename, '[:\/]', '+', 'g')
   return filename
 endfunction
 function! s:get_local_filename(zipfile) abort
@@ -62,9 +62,12 @@ function! s:get_local_filename(zipfile) abort
     return a:zipfile
   endif
   let zipfile = s:Path.join(
-        \ g:protocol#zip#cache_directory,
+        \ expand(g:protocol#zip#cache_directory),
         \ s:get_cache_filename(a:zipfile),
         \)
+  if !isdirectory(fnamemodify(zipfile, ':h'))
+    call mkdir(fnamemodify(zipfile, ':h'), 'p')
+  endif
   if !filereadable(zipfile)
     let content = protocol#read_content(a:zipfile)
     call writefile(content, zipfile)
@@ -121,11 +124,20 @@ function! protocol#zip#SourceCmd(uri, ...) abort
   endtry
 endfunction
 function! protocol#zip#FileReadCmd(uri, ...) abort
+  call protocol#doautocmd('FileReadPre')
+  if get(b:, '_protocol_cancel', '') !~# '^\%(zip\)\?$'
+    return
+  endif
   let options = get(a:000, 0, {})
   let content = protocol#zip#read(a:uri)
   call s:Buffer.read_content(content, options)
+  call protocol#doautocmd('FileReadPost')
 endfunction
 function! protocol#zip#BufReadCmd(uri, ...) abort
+  call protocol#doautocmd('BufReadPre')
+  if get(b:, '_protocol_cancel', '') !~# '^\%(zip\)\?$'
+    return
+  endif
   let options = get(a:000, 0, {})
   let content = protocol#zip#read(a:uri)
   call s:Buffer.edit_content(content, options)
@@ -134,8 +146,13 @@ function! protocol#zip#BufReadCmd(uri, ...) abort
     autocmd! * <buffer>
     autocmd BufWriteCmd <buffer> call protocol#zip#BufWriteCmd(expand('<afile>'))
   augroup END
+  call protocol#doautocmd('BufReadPost')
 endfunction
 function! protocol#zip#BufWriteCmd(uri, ...) abort
+  call protocol#doautocmd('BufWritePre')
+  if get(b:, '_protocol_cancel', '') !~# '^\%(zip\)\?$'
+    return
+  endif
   let options = get(a:000, 0, {})
   let guard = s:Guard.store('&binary')
   try
@@ -146,6 +163,7 @@ function! protocol#zip#BufWriteCmd(uri, ...) abort
   finally
     call guard.restore()
   endtry
+  call protocol#doautocmd('BufWritePost')
 endfunction
 
 function! s:open(zipfile, filename, ...) abort
@@ -196,10 +214,12 @@ augroup vim_protocol_internal_zip_pseudo
   autocmd FileReadPost zip://* :
   autocmd BufReadPre   zip://* :
   autocmd BufReadPost  zip://* :
+  autocmd BufWritePre  zip://* :
+  autocmd BufWritePost zip://* :
 augroup END
 
 call protocol#define_variables('zip', {
       \ 'zip_exec': 'zip',
       \ 'unzip_exec': 'unzip',
-      \ 'cache_directory': '~/.cache/vim/vim-protocol/zip',
+      \ 'cache_directory': '~/.cache/vim-protocol/zip',
       \})

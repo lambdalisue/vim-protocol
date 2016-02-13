@@ -76,11 +76,19 @@ function! protocol#define_variables(prefix, defaults) abort
   endfor
 endfunction
 
+function! protocol#guess_protocol(filename) abort
+  let protocol = matchstr(a:filename, '^\a\+\ze://')
+  if protocol ==# 'https'
+    let protocol = 'http'
+  endif
+  return protocol
+endfunction
+
 function! protocol#read_content(filename) abort
   if a:filename !~# '^\a\+://'
     return readfile(a:filename)
   endif
-  let protocol = matchstr(a:filename, '^\a\+\ze://')
+  let protocol = protocol#guess_protocol(a:filename)
   let fname = printf('protocol#%s#read', protocol)
   try
     return call(fname, [a:filename])
@@ -93,7 +101,7 @@ function! protocol#write_content(filename, content) abort
   if a:filename !~# '^\a\+://'
     return readfile(a:filename)
   endif
-  let protocol = matchstr(a:filename, '^\a\+\ze://')
+  let protocol = protocol#guess_protocol(a:filename)
   let fname = printf('protocol#%s#write', protocol)
   try
     return call(fname, [a:filename, a:content])
@@ -106,7 +114,7 @@ function! protocol#is_writable(filename) abort
   if a:filename !~# '^\a\+://'
     return filewritable(a:filename)
   endif
-  let protocol = matchstr(a:filename, '^\a\+\ze://')
+  let protocol = protocol#guess_protocol(a:filename)
   let fname = printf('protocol#%s#is_writable', protocol)
   try
     return call(fname, [a:filename])
@@ -121,6 +129,8 @@ function! protocol#handle_autocmd(protocol, name) abort
     call call(fname, [expand('<afile>')])
   catch /^protocol:/
     call protocol#handle_exception()
+  finally
+    silent! unlet! b:_protocol_cancel
   endtry
 endfunction
 

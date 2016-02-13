@@ -6,16 +6,28 @@ function! s:throw(msg) abort
   call protocol#throw(printf('http: %s', a:msg))
 endfunction
 function! protocol#http#read(uri, ...) abort
-  let response = s:HTTP.get(a:uri)
-  if !response.success
-    let msg = printf('%s %s: %s',
-          \ response.status,
-          \ response.statusText,
-          \ response.content
-          \)
-    call s:throw(msg)
-  endif
-  return protocol#split_posix_text(response.content)
+  let tempfile = resolve(tempname())
+  try
+    let response = s:HTTP.request({
+          \ 'method': 'GET',
+          \ 'url': a:uri,
+          \ 'outputFile': tempfile,
+          \})
+    let content  = readfile(tempfile)
+    if !response.success
+      let msg = printf('%s %s: %s',
+            \ response.status,
+            \ response.statusText,
+            \ join(content, "\n"),
+            \)
+      call s:throw(msg)
+    endif
+    return content
+  finally
+    if filereadable(tempfile)
+      call delete(tempfile)
+    endif
+  endtry
 endfunction
 function! protocol#http#write(uri, content, ...) abort
   call s:throw('http protocol does not support writing content')
@@ -41,6 +53,9 @@ endfunction
 
 function! protocol#http#FileReadCmd(uri, ...) abort
   call protocol#doautocmd('FileReadPre')
+  if get(b:, '_protocol_cancel', '') !~# '^\%(http\)\?$'
+    return
+  endif
   let cmdarg  = get(a:000, 0, v:cmdarg)
   let options = protocol#parse_cmdarg(cmdarg)
   let content = protocol#http#read(a:uri)
@@ -50,6 +65,9 @@ endfunction
 
 function! protocol#http#BufReadCmd(uri, ...) abort
   call protocol#doautocmd('BufReadPre')
+  if get(b:, '_protocol_cancel', '') !~# '^\%(http\)\?$'
+    return
+  endif
   let cmdarg  = get(a:000, 0, v:cmdarg)
   let options = protocol#parse_cmdarg(cmdarg)
   let content = protocol#http#read(a:uri)
