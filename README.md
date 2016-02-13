@@ -2,7 +2,7 @@ vim-protocol
 ===============================================================================
 ![Version 0.1.0](https://img.shields.io/badge/version-0.1.0-yellow.svg?style=flat-square) ![Support Vim 7.3 or above](https://img.shields.io/badge/support-Vim%207.3%20or%20above-yellowgreen.svg?style=flat-square) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE) [![Doc](https://img.shields.io/badge/doc-%3Ah%20protocol-orange.svg?style=flat-square)](doc/protocol.txt)
 
-Provide features to open, read, source remote contents of http://, https://, or ftp:// without using `netrw.vim`.
+Provide features to open, read, source remote contents of http:// or https:// without using `netrw.vim`.
 Designed for user who don't use most of features of `netrw.vim` but want to access remote contents.
 
 Attention
@@ -25,7 +25,7 @@ NeoBundle 'lambdalisue/vim-protocol'
 " neobundle.vim (Lazy)
 NeoBundleLazy 'lambdalisue/vim-protocol', {
       \ 'on_func': 'protocol#',
-      \ 'on_path': '^\%(https\?://\|ftp://\)',
+      \ 'on_path': '^https\?://',
       \}
 ```
 
@@ -48,7 +48,7 @@ let g:loaded_netrwFileHandlers = 1
 Usage
 -------------------------------------------------------------------------------
 
-This plugin provides `BufReadCmd`, `FileReadCmd` and `SourceCmd` for filenames starts with `http://`, `https://` or `ftp://`.
+This plugin provides `BufReadCmd`, `FileReadCmd` and `SourceCmd` for filenames starts with `http://` or `https://`.
 In short, the following command request remote contents of corresponding URLs.
 
 ```vim
