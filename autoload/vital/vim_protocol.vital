@@ -8,3 +8,4 @@ Vim.Buffer.Anchor
 System.Filepath
 System.File
 Process
+Vim.Guard
