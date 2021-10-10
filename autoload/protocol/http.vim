@@ -13,7 +13,7 @@ function! protocol#http#read(uri, ...) abort
           \ 'url': a:uri,
           \ 'outputFile': tempfile,
           \})
-    let content  = readfile(tempfile)
+    let content = readfile(tempfile)
     if !response.success
       let msg = printf('%s %s: %s',
             \ response.status,

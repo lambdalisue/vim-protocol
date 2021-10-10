@@ -1,4 +1,4 @@
-let s:V = vital#of('vim_protocol')
+let s:V = vital#vim_protocol#new()
 let s:Prompt = s:V.import('Vim.Prompt')
 
 function! protocol#vital() abort
