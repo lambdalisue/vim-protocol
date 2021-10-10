@@ -3,7 +3,7 @@ let s:File = s:V.import('System.File')
 let s:Path = s:V.import('System.Filepath')
 let s:Guard = s:V.import('Vim.Guard')
 let s:Buffer = s:V.import('Vim.Buffer')
-let s:Process = s:V.import('Vim.Process')
+let s:Process = s:V.import('Process')
 
 function! s:throw(msg) abort
   call protocol#throw(printf('zip: %s', a:msg))
@@ -154,7 +154,7 @@ function! protocol#zip#BufWriteCmd(uri, ...) abort
     return
   endif
   let options = get(a:000, 0, {})
-  let guard = s:Guard.store('&binary')
+  let guard = s:Guard.store(['&binary'])
   try
     set binary
     let content = getline(1, '$')
@@ -169,7 +169,7 @@ endfunction
 function! s:open(zipfile, filename, ...) abort
   let options = get(a:000, 0, {})
   let bufname = printf('zip://%s:%s', a:zipfile, a:filename)
-  let guard = s:Guard.store('&eventignore')
+  let guard = s:Guard.store(['&eventignore'])
   try
     set eventignore+=BufReadCmd
     call s:Buffer.open(bufname, 'edit')
